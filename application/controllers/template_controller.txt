@@ -1,0 +1,75 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class <<nama_modul>> extends CI_Controller {
+	function __construct() {
+        parent::__construct();
+        $this->d['tabel'] = "<<nama_tabel>>";
+        
+    }
+
+
+	public function index() {
+		$data = $this->db->query("SELECT * FROM ".$this->d['tabel']."")->result_array();
+
+		$html = '<a href="'.base_url('<<nama_tabel>>/edit/0').'" class="btn btn-success">Tambah Data</a><br><br>'.$this->session->flashdata('konfirmasi').'
+		<table class="table table-bordered"><thead><tr><<kolom_header>></tr></thead><tbody>';
+
+		if (!empty($data)) {
+			foreach ($data as $d) {
+				$html .= '<tr><<data>></tr>';
+			}
+		} else {
+			$html .= '<tr><td colspan="'.(<<jml_colspan>>+1).'">Belum ada data</td></tr>';
+		}
+
+		$html .= '</tbody></table>';
+
+		$d['p'] = "list";
+		$d['html'] = $html;
+
+		$this->load->view('template', $d);
+	}
+
+	public function edit($id) {
+		if (empty($id)) {
+			<<data_value_form>>
+		} else {
+			$q_data = $this->db->query("SELECT a.*, 'edit' mode FROM ".$this->d['tabel']." a WHERE a.id = '".$id."'")->row_array();
+
+			$data = $q_data;
+		}
+
+		$d['data'] = $data;
+		$d['p'] = "form";
+		$this->load->view('template', $d);
+
+	}
+
+	public function simpan() {
+		$p = $this->input->post();
+
+		$p_data = array(<<data_post>>);
+
+		<<data_value_form_is_upload>>
+
+		if ($p['mode'] == "edit") {
+			$this->db->where("id", $p['id']);
+			$this->db->update($this->d['tabel'], $p_data);
+		} else if ($p['mode'] == "add") {
+			$this->db->insert($this->d['tabel'], $p_data);
+		}
+		
+		redirect(strtolower('<<nama_modul>>'));		
+	}
+
+
+	public function hapus($id) {
+		if (!empty($id)) {
+			$this->db->query("DELETE FROM ".$this->d['tabel']." WHERE id = $id");
+		}
+		redirect(strtolower('<<nama_modul>>'));
+	}
+
+
+}
