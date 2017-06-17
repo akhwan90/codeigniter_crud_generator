@@ -10,9 +10,52 @@ class <<nama_modul>> extends CI_Controller {
 
 
 	public function index() {
-		$data = $this->db->query("SELECT * FROM ".$this->d['tabel']."")->result_array();
+		$wh = "";
 
-		$html = '<a href="'.base_url('<<nama_tabel>>/edit/0').'" class="btn btn-success">Tambah Data</a><br><br>'.$this->session->flashdata('konfirmasi').'
+		if (empty($this->uri->segment(3))) {
+	        $this->session->set_userdata('<<nama_tabel>>_katakunci', '');
+		}
+
+		if (isset($_POST['q'])) {
+			$q = $_POST['q'];
+	        $this->session->set_userdata('<<nama_tabel>>_katakunci', $q);
+			$this->kata_kunci = $this->session->userdata('<<nama_tabel>>_katakunci');
+			$wh = "<<where_cari>>";
+		} else {
+			$this->kata_kunci = $this->session->userdata('<<nama_tabel>>_katakunci');
+			$wh = "<<where_cari>>"; 
+		}
+		
+		$total_row 	= $this->db->query("SELECT * FROM ".$this->d['tabel']." $wh")->num_rows();
+
+		$per_page	= 5;
+		$uri_page 	= 4;     
+        $awal   	= $this->uri->segment($uri_page); 
+        $awal   	= (empty($awal) || $awal == 1) ? 0 : $awal;
+        $akhir  	= $per_page;
+        
+        $pagi 		= _page($total_row, $per_page, $uri_page, base_url('index.php/<<nama_tabel>>/index/p'));
+
+
+		$data 		= $this->db->query("SELECT * FROM ".$this->d['tabel']." $wh LIMIT ".$awal.", ".$akhir."")->result_array();
+
+		$html = '<h3>List Data</h3><hr><div class="panel panel-default"><div class="panel-body">
+		<div class="btn-group">
+			<a href="'.base_url('index.php/<<nama_tabel>>/edit/0').'" class="btn btn-success pull-left">Tambah Data</a>
+			<a href="'.base_url('index.php/<<nama_tabel>>').'" class="btn btn-default pull-left">Tampilkan Semua</a>
+		</div>
+		<form class="form-horizontal pull-right col-md-5" method="post" action="'.base_url('index.php/'.$this->d['tabel'].'/index/p/0').'">
+			<div class="form-group">
+				<div class="col-md-9">
+					<input type="text" name="q" class="form-control" placeholder="Masukkan kata kunci pencarian.." value="'.($this->kata_kunci).'">
+				</div>
+				<div class="col-md-3">
+					<button type="submit" class="btn btn-info col-md-12">Cari</button>
+				</div>
+			</div>
+		</form>
+		</div></div>
+		'.$this->session->flashdata('konfirmasi').'
 		<table class="table table-bordered"><thead><tr><<kolom_header>></tr></thead><tbody>';
 
 		if (!empty($data)) {
@@ -23,7 +66,7 @@ class <<nama_modul>> extends CI_Controller {
 			$html .= '<tr><td colspan="'.(<<jml_colspan>>+1).'">Belum ada data</td></tr>';
 		}
 
-		$html .= '</tbody></table>';
+		$html .= '</tbody></table><p><ul class="pagination">'.$pagi.'</ul></p>';
 
 		$d['p'] = "list";
 		$d['html'] = $html;
