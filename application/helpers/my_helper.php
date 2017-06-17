@@ -1,27 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-function cek_aktif() {
-	$CI 	=& get_instance();
-	$sesspre = $CI->config->item('session_name_prefix');
-
-
-	$aktif 		= $CI->session->userdata("valid");
-	$username 	= $CI->session->userdata("user");
-
-	if ($aktif != TRUE || $username == "") {
-		redirect('login');
-	}
-}
-
-function cek_hak_akses($user_level, $list_hak_akses) {
-	if (!in_array($user_level, $list_hak_akses)) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
 function j($data) {
 	header('Content-Type: application/json');
 	echo json_encode($data);
