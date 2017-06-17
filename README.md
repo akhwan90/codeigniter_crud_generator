@@ -1,5 +1,5 @@
 # CodeigniterHMVC CRUD Generator
-A simple tool, that can automatically generate a module (<a href="https://bitbucket.org/wiredesignz/codeigniter-modular-extensions-hmvc/downloads/">HMVC</a> concept in Codeigniter) that contain of controllers, views in simple step
+A simple tool, that can automatically generate a module (<a href="https://bitbucket.org/wiredesignz/codeigniter-modular-extensions-hmvc/downloads/">HMVC</a> concept in Codeigniter) which contain of controllers and views (only controllers dan views - in my concepts) in simple step
 
 # Step by Step 
 - cd /opt/lampp/htdocs
@@ -9,3 +9,5 @@ A simple tool, that can automatically generate a module (<a href="https://bitbuc
 - subl /opt/lampp/htdocs/codeigniter_crud_generator/application/config/database.php
 - change database name, username, dan password
 - open http://localhost/codeigniter_crud_generator/
+
+#latihan_english
