@@ -45,7 +45,8 @@ class Awal extends CI_Controller {
 					<th width="20%">Nama Field</th>
 					<th width="20%">Nama Label</th>
 					<th width="30%">Keterangan Tambahan</th>
-					<th width="20%">Required</th>
+					<th width="10%">Required</th>
+					<th width="10%">Is Cari</th>
 				</tr>
 			</thead><tbody>';
 
@@ -56,6 +57,7 @@ class Awal extends CI_Controller {
 						<td>'.form_input('nama_l[]','','class="form-control" required id="nama_l_'.$i.'"').'</td>
 						<td>'.form_input('pil_selek[]','','class="form-control" readonly id="pil_selek_'.$i.'"').'<span id="petunjuk" style="color: red; font-weight: bold; font-size: 10px"></span></td>
 						<td>'.form_checkbox('is_required[]',$i,'class="form-control"').'</td>
+						<td>'.form_checkbox('is_cari[]',$i,'class="form-control"').'</td>
 					  </tr>';
 		}
 
@@ -96,6 +98,7 @@ class Awal extends CI_Controller {
 			$data_post = array();
 			$data_create_form = array();
 			$data_value_form_is_upload = "";
+			$where_cari = "";
 
 			$enctype = in_array("file", $p['tipe']) == TRUE ? 'enctype="multipart/form-data"' : '';
 
@@ -105,7 +108,7 @@ class Awal extends CI_Controller {
 			$sql_create_tabel .= (isset($p['buat_id']) && $p['buat_id'] == "Y") ? "\n"."`id` INT(8) NOT NULL AUTO_INCREMENT,"."\n" : "\n";
 
 			//create form
-			$create_form = '<form class="form" method="post" action="<?php echo base_url(\''.$nm.'/simpan\'); ?>" '.$enctype.'>'."\n".'<input type="hidden" name="id" value="<?php echo $data[\'id\']; ?>">'."\n".'<input type="hidden" name="mode" value="<?php echo $data[\'mode\']; ?>">'."\n";
+			$create_form = '<h3>Form Data</h3><hr>'."\n\n".'<form class="form" method="post" action="<?php echo base_url(\'index.php/'.$nm.'/simpan\'); ?>" '.$enctype.'>'."\n".'<input type="hidden" name="id" value="<?php echo $data[\'id\']; ?>">'."\n".'<input type="hidden" name="mode" value="<?php echo $data[\'mode\']; ?>">'."\n";
 
 			$sql_create_tabel_s = array();
 			
@@ -118,6 +121,14 @@ class Awal extends CI_Controller {
 
 				$_x = strval($x);
 				$is_required = in_array($_x, $p['is_required']) ? "required" : "";
+
+				if (in_array($_x, $p['is_cari'])) {
+					if ($where_cari == "") {
+						$where_cari .= 'WHERE '.$p['nama_f'][$x].' LIKE \'%".$this->kata_kunci."%\' ';
+					} else {
+						$where_cari .= 'OR '.$p['nama_f'][$x].' LIKE \'%".$this->kata_kunci."%\' ';
+					}
+				}
 
 				if ($tipe_field == "text") {
 					$sql_create_tabel_s[] = "`".$p['nama_f'][$x]."` VARCHAR(200) NOT NULL";
@@ -198,13 +209,14 @@ class Awal extends CI_Controller {
 
 			}
 
-			$create_form .= implode("\n",$data_create_form)."\n\t".'<div class="form-group"><button type="submit" class="btn btn-success">Simpan</button> <a href="<?php echo base_url(\''.$nm.'\'); ?>" class="btn btn-info">Kembali</a></div>'."\n".'</form>';
+
+			$create_form .= implode("\n",$data_create_form)."\n\t".'<div class="form-group"><button type="submit" class="btn btn-success">Simpan</button> <a href="<?php echo base_url(\'index.php/'.$nm.'\'); ?>" class="btn btn-info">Kembali</a></div>'."\n".'</form>';
 
 
 			$kolom_header[] = '<th>Aksi</th>'; //tambahi kolom aksi
 			$data[] = '<td>
-						<a href="\'.base_url(\''.$nm.'/edit/\'.$d[\'id\']).\'">Edit</a> 
-						<a href="\'.base_url(\''.$nm.'/hapus/\'.$d[\'id\']).\'" onclick="return confirm(\\\'Anda yakin..?\\\');">Hapus</a>
+						<a href="\'.base_url(\'index.php/'.$nm.'/edit/\'.$d[\'id\']).\'">Edit</a> 
+						<a href="\'.base_url(\'index.php/'.$nm.'/hapus/\'.$d[\'id\']).\'" onclick="return confirm(\\\'Anda yakin..?\\\');">Hapus</a>
 					   </td>';  //tambahi kolom klik aksi
 			$data_value_form[] = '$data[\'mode\'] = "add";'."\n\t\t\t".'$data[\'id\'] = 0;'."\n\t\t\t";
 			
@@ -225,7 +237,7 @@ class Awal extends CI_Controller {
 			$buka_file_template_controller = read_file($file_template."/template_controller.txt"); //buka file template
 			$buka_file_template_v_view = read_file($file_template."/template_view.txt"); //buka file template
 			
-			$new_content_controllers = str_replace(array("<<nama_modul>>","<<nama_tabel>>","<<kolom_header>>","<<data>>","<<jml_colspan>>","<<data_value_form>>","<<data_post>>","<<data_value_form_is_upload>>"), array($nm_file,$nm,$_kolom_header,$_data,$jml_colspan,$_data_value_form,$_data_post, $data_value_form_is_upload), $buka_file_template_controller);
+			$new_content_controllers = str_replace(array("<<nama_modul>>","<<nama_tabel>>","<<kolom_header>>","<<data>>","<<jml_colspan>>","<<data_value_form>>","<<data_post>>","<<data_value_form_is_upload>>","<<where_cari>>"), array($nm_file,$nm,$_kolom_header,$_data,$jml_colspan,$_data_value_form,$_data_post, $data_value_form_is_upload, $where_cari), $buka_file_template_controller);
 			//replace template
 
 
